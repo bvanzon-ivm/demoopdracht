@@ -1,0 +1,9 @@
+{
+  "@@locale": "en",
+  "appTitle": "Anchiano",
+  "tasksTitle": "Tasks",
+  "priority": "Priority",
+  "status": "Status",
+  "description": "Description",
+  "due": "Due"
+}

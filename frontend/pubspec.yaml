@@ -1,0 +1,35 @@
+name: Anchiano
+description: "Multi tenant productivity app"
+
+publish_to: 'none' 
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_bloc: ^9.0.0
+  equatable: ^2.0.5
+  intl: ^0.20.2
+  collection: ^1.18.0
+  dio: ^5.9.0
+  flutter_secure_storage: ^9.2.4
+  flutter_localizations:
+    sdk: flutter
+  web_socket_channel: 3.0.3
+  file_picker: 8.1.2
+  path: ^1.9.0
+  http: ^1.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  generate: true
