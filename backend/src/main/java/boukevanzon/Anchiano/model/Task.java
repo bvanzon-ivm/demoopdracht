@@ -8,14 +8,16 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
 
 @Entity
 @Table(name = "tasks")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
+@Builder
+
 public class Task {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,10 +32,12 @@ public class Task {
     @Column(nullable = true)
     private String description;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TaskStatus status = TaskStatus.TODO;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TaskPriority priority = TaskPriority.MEDIUM;
@@ -41,29 +45,37 @@ public class Task {
     @Column(nullable = true)
     private LocalDateTime dueDate;
 
-    // 👇 wijziging: meerdere assignees
+@   Builder.Default
+    @ManyToMany
+    @JoinTable(
+        name = "task_labels",
+        joinColumns = @JoinColumn(name = "task_id"),
+        inverseJoinColumns = @JoinColumn(name = "label_id")
+    )
+    private List<Label> labels = new ArrayList<>();
+
+    @Builder.Default
     @ManyToMany
     @JoinTable(
         name = "task_assignees",
         joinColumns = @JoinColumn(name = "task_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-
-    private Set<User> assignees = new HashSet<>();
-
-    // 👇 wijziging: labels via element collection
-    @ElementCollection
-    @CollectionTable(name = "task_labels", joinColumns = @JoinColumn(name = "task_id"))
-    @Column(name = "label")
-    private List<String> labels = new ArrayList<>();
+    private List<User> assignees = new ArrayList<>();
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "created_by")
     private User createdBy;
+
+
+    @Builder.Default
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Builder.Default
     @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+    
     @Column(nullable = true)
     private LocalDateTime deletedAt;
 }

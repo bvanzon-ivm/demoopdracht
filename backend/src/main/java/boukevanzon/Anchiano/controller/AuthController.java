@@ -1,8 +1,8 @@
 package boukevanzon.Anchiano.controller;
 
-import boukevanzon.Anchiano.dto.LoginRequest;
-import boukevanzon.Anchiano.dto.RegisterRequest;
-import boukevanzon.Anchiano.dto.JwtResponse;
+import boukevanzon.Anchiano.dto.JwtDto;
+import boukevanzon.Anchiano.dto.LoginDto;
+import boukevanzon.Anchiano.dto.RegisterDto;
 import boukevanzon.Anchiano.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +19,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(authService.login(loginRequest));
+    public ResponseEntity<JwtDto> login(@Valid @RequestBody LoginDto dto) {
+        return ResponseEntity.ok(authService.login(dto));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<JwtResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        return ResponseEntity.ok(authService.register(registerRequest));
+    public ResponseEntity<JwtDto> register(@Valid @RequestBody RegisterDto dto) {
+        return ResponseEntity.ok(authService.register(dto));
     }
 }

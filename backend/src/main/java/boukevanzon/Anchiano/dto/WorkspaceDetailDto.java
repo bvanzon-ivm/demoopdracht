@@ -1,13 +1,16 @@
-// dto/WorkspaceDetailDto.java
 package boukevanzon.Anchiano.dto;
+
+import lombok.*;
 
 import java.util.List;
 
-public record WorkspaceDetailDto(
-    Long id,
-    String name,
-    String description,
-    UserDto owner,
-    boolean isOwner,
-    List<UserDto> members
-) {}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class WorkspaceDetailDto {
+    private Long id;
+    private String name;
+    private List<UserDto> members;
+}

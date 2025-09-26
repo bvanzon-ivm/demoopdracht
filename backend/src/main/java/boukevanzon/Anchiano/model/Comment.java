@@ -2,15 +2,19 @@ package boukevanzon.Anchiano.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class Comment {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(optional = false)
@@ -29,11 +33,13 @@ public class Comment {
     @Column(nullable = false)
     private String body;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Instant createdAt = Instant.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-     @Column(nullable = false)
-    private Instant editedAt = Instant.now();
+    @Builder.Default
+    @Column(nullable = false)
+    private LocalDateTime editedAt = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "edited_by")

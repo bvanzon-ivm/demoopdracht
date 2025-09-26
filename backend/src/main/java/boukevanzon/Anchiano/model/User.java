@@ -2,45 +2,41 @@ package boukevanzon.Anchiano.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 80)
+    private String name;
+
     @Column(nullable = false, unique = true, length = 320)
     private String email;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 100)
     private String passwordHash;
 
-    @Column(nullable = false, length = 100)
-    private String name;
-
     @Column(nullable = false)
-    private Boolean isActive = true;
+    private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private Instant createdAt = Instant.now();
+    @Column
+    private LocalDateTime lastLoginAt;
 
-    @Column(nullable = false)
-    private Instant updatedAt = Instant.now();
-
-    @Column(nullable = true)
-    private Instant lastLoginAt;
-
-    // 🔹 Lifecycle hooks om email altijd in lowercase te forceren
     @PrePersist
+    public void onCreate() {
+        createdAt = LocalDateTime.now();
+        if (email != null) email = email.toLowerCase();
+    }
+
     @PreUpdate
-    private void normalizeEmail() {
-        if (this.email != null) {
-            this.email = this.email.toLowerCase();
-        }
+    public void onUpdate() {
+        if (email != null) email = email.toLowerCase();
     }
 }
-

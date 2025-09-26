@@ -10,6 +10,9 @@ import '../features/tasks/bloc/task_list_bloc.dart';
 import '../features/tasks/repositories/task_repository.dart';
 import '../features/auth/bloc/auth_bloc.dart';
 import 'login_screen.dart';
+import '../features/workspaces/bloc/workspace_detail_bloc.dart';
+import '../features/workspaces/repositories/workspace_repository.dart';
+import 'workspace_detail_screen.dart';
 
 
 class WorkspaceListScreen extends StatelessWidget {
@@ -109,22 +112,22 @@ class WorkspaceListScreen extends StatelessWidget {
                 return ListTile(
                   title: Text(ws.name),
                   subtitle: Text("Members: ${ws.members.length}"),
-                  // trailing: IconButton(
-                  //   icon: const Icon(Icons.settings),
-                  //   onPressed: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (_) => BlocProvider(
-                  //           create: (_) => WorkspaceDetailBloc(
-                  //             context.read<WorkspaceRepository>(),
-                  //           )..add(LoadWorkspaceDetail(ws.id)),
-                  //           child: WorkspaceDetailScreen(workspace: ws),
-                  //         ),
-                  //       ),
-                  //     );
-                  //   },
-                  // ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BlocProvider(
+                            create: (_) => WorkspaceDetailBloc(
+                              context.read<WorkspaceRepository>(),
+                            )..add(LoadWorkspaceDetail(ws.id)),
+                            child: WorkspaceDetailScreen(workspace: ws),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                   onTap: () {
                     Navigator.push(
                       context,

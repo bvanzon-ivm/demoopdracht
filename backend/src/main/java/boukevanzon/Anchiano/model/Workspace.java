@@ -2,13 +2,17 @@ package boukevanzon.Anchiano.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "workspaces")
 @Data
 @NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@Builder
+
 public class Workspace {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,13 +28,15 @@ public class Workspace {
     @JoinColumn(name = "owner_id")
     private User owner;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Instant createdAt = Instant.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Builder.Default
     @Column(nullable = false)
-    private Instant updatedAt = Instant.now();
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     @Column(nullable = true)
-    private Instant deletedAt;
+    private LocalDateTime deletedAt;
 }
 

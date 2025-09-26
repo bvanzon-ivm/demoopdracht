@@ -3,15 +3,18 @@ package boukevanzon.Anchiano.model;
 import boukevanzon.Anchiano.enums.WorkspaceRole;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "workspace_memberships",
        uniqueConstraints = @UniqueConstraint(columnNames = {"workspace_id", "user_id"}))
 @Data
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class WorkspaceMembership {
+@Getter
+@Setter
+public class Membership {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -23,10 +26,12 @@ public class WorkspaceMembership {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private WorkspaceRole role = WorkspaceRole.MEMBER;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Instant createdAt = Instant.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
