@@ -2,18 +2,22 @@ import '../models/task.dart';
 import '../services/task_service.dart';
 
 class TaskRepository {
-  final TaskService api;
-  TaskRepository(this.api);
+  final TaskService _service;
 
-  Future<List<Task>> list(int workspaceId) => api.fetchTasks(workspaceId);
-  Future<Task> create(int workspaceId, Map<String, dynamic> payload) =>
-      api.createTask(workspaceId, payload);
-  Future<Task> get(int workspaceId, int id) => api.getTask(workspaceId, id);
-  Future<Task> update(int workspaceId, int id, Map<String, dynamic> payload) =>
-      api.updateTask(workspaceId, id, payload);
-  Future<void> delete(int workspaceId, int id) => api.deleteTask(workspaceId, id);
-  Future<List<Map<String, dynamic>>> audit(int workspaceId, int id) =>
-      api.fetchAudit(workspaceId, id);
-  Future<void> rollback(int workspaceId, int id, String field, int versionId) =>
-      api.rollbackField(workspaceId, id, field, versionId);
+  TaskRepository(this._service);
+
+  Future<List<Task>> getTasks(String token, int workspaceId) =>
+      _service.getTasks(token, workspaceId);
+
+  Future<Task> getTask(String token, int workspaceId, int taskId) =>
+      _service.getTask(token, workspaceId, taskId);
+
+  Future<Task> createTask(String token, int workspaceId, Map<String, dynamic> body) =>
+      _service.createTask(token, workspaceId, body);
+
+  Future<Task> updateTask(String token, int workspaceId, int taskId, Map<String, dynamic> body) =>
+      _service.updateTask(token, workspaceId, taskId, body);
+
+  Future<void> deleteTask(String token, int workspaceId, int taskId) =>
+      _service.deleteTask(token, workspaceId, taskId);
 }

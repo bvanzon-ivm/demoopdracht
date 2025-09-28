@@ -1,5 +1,6 @@
 package boukevanzon.Anchiano.service;
 
+import boukevanzon.Anchiano.dto.MembershipDto;
 import boukevanzon.Anchiano.dto.WorkspaceDto;
 import org.springframework.security.core.Authentication;
 
@@ -11,4 +12,8 @@ public interface WorkspaceService {
     WorkspaceDto createWorkspace(Authentication auth, WorkspaceDto dto);
     WorkspaceDto updateWorkspace(Authentication auth, Long workspaceId, WorkspaceDto dto);
     void deleteWorkspace(Authentication auth, Long workspaceId);
+
+
+    List<MembershipDto> getMembers(Authentication auth, Long workspaceId);
+    void addMember(Authentication auth, Long workspaceId, Long userId, String role);
 }

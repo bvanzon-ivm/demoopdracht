@@ -18,7 +18,7 @@ import 'app_localizations_nl.dart';
 /// `supportedLocales` list. For example:
 ///
 /// ```dart
-/// import 'generated/app_localizations.dart';
+/// import 'l10n/app_localizations.dart';
 ///
 /// return MaterialApp(
 ///   localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -95,41 +95,6 @@ abstract class AppLocalizations {
     Locale('nl')
   ];
 
-  /// No description provided for @appTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Anchiano'**
-  String get appTitle;
-
-  /// No description provided for @tasksTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Tasks'**
-  String get tasksTitle;
-
-  /// No description provided for @priority.
-  ///
-  /// In en, this message translates to:
-  /// **'Priority'**
-  String get priority;
-
-  /// No description provided for @status.
-  ///
-  /// In en, this message translates to:
-  /// **'Status'**
-  String get status;
-
-  /// No description provided for @description.
-  ///
-  /// In en, this message translates to:
-  /// **'Description'**
-  String get description;
-
-  /// No description provided for @due.
-  ///
-  /// In en, this message translates to:
-  /// **'Due'**
-  String get due;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

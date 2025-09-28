@@ -1,83 +1,76 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../core/config/api_config.dart';
+import '../../auth/models/user.dart';
 import '../models/workspace.dart';
 
 class WorkspaceService {
-  Future<List<Workspace>> fetchWorkspaces() async {
+  Future<List<Workspace>> getWorkspaces(String token) async {
     final res = await http.get(
       Uri.parse('${ApiConfig.baseUrl}/workspaces'),
-      headers: ApiConfig.headers,
+      headers: ApiConfig.authHeaders(token),
     );
 
-    if (res.statusCode != 200) {
-      throw Exception("Failed to fetch workspaces: ${res.body}");
+    if (res.statusCode == 200) {
+      final List data = jsonDecode(res.body);
+      return data.map((json) => Workspace.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to fetch workspaces: ${res.body}');
     }
-
-    final list = jsonDecode(res.body) as List<dynamic>;
-    return list.map((e) => Workspace.fromJson(e)).toList();
   }
 
-  Future<Workspace> getWorkspace(int id) async {
+  Future<Workspace> getWorkspaceById(String token, int id) async {
     final res = await http.get(
       Uri.parse('${ApiConfig.baseUrl}/workspaces/$id'),
-      headers: ApiConfig.headers,
+      headers: ApiConfig.authHeaders(token),
     );
 
-    if (res.statusCode != 200 && res.statusCode != 201) {
-      throw Exception("Failed to load workspace: ${res.body}");
+    if (res.statusCode == 200) {
+      return Workspace.fromJson(jsonDecode(res.body));
+    } else {
+      throw Exception('Failed to fetch workspace: ${res.body}');
     }
+  }
+  Future<Workspace> createWorkspace(String token, Map<String, dynamic> body) async {
+  final res = await http.post(
+    Uri.parse('${ApiConfig.baseUrl}/workspaces'),
+    headers: ApiConfig.authHeaders(token),
+    body: jsonEncode(body),
+  );
 
+  if (res.statusCode == 200) {
     return Workspace.fromJson(jsonDecode(res.body));
+  } else {
+    throw Exception('Failed to create workspace: ${res.body}');
   }
-
-  Future<Workspace> createWorkspace(String name, String description) async {
-    final res = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/workspaces'),
-      headers: ApiConfig.headers,
-      body: jsonEncode({'name': name, 'description': description}),
-    );
-
-    if (res.statusCode != 200 && res.statusCode != 201) {
-      throw Exception("Failed to create workspace: ${res.body}");
-    }
-
-    return Workspace.fromJson(jsonDecode(res.body));
-  }
-
-  Future<void> addUser(int workspaceId, String email) async {
-    final res = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/workspaces/$workspaceId/users'),
-      headers: ApiConfig.headers,
-      body: jsonEncode({'email': email}),
-    );
-
-    if (res.statusCode != 204) {
-      throw Exception("Failed to add user: ${res.body}");
-    }
-  }
-
-  Future<void> removeUser(int workspaceId, int userId) async {
-    final res = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/workspaces/$workspaceId/users/$userId'),
-      headers: ApiConfig.headers,
-    );
-
-    if (res.statusCode != 204) {
-      throw Exception("Failed to remove user: ${res.body}");
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> fetchAuditLogs(int workspaceId) async {
-    final res = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/workspaces/$workspaceId/audit'),
-      headers: ApiConfig.headers,
-    );
-
-    if (res.statusCode != 200 && res.statusCode != 201) {
-      throw Exception("Failed to load audit logs: ${res.body}");
-    }
-
+}
+Future<List<Map<String, dynamic>>> getMembers(
+    String token, int workspaceId) async {
+  final res = await http.get(
+    Uri.parse('${ApiConfig.baseUrl}/workspaces/$workspaceId/members'),
+    headers: ApiConfig.authHeaders(token),
+  );
+  if (res.statusCode == 200) {
     return List<Map<String, dynamic>>.from(jsonDecode(res.body));
+  } else {
+    throw Exception('Failed to load members: ${res.body}');
   }
+}
+
+Future<Map<String, dynamic>> addMember(
+    String token, int workspaceId, int userId) async {
+  final res = await http.post(
+    Uri.parse('${ApiConfig.baseUrl}/workspaces/$workspaceId/members'),
+    headers: ApiConfig.authHeaders(token),
+    body: jsonEncode({
+      "user": {"id": userId},
+      "role": "MEMBER",
+    }),
+  );
+  if (res.statusCode == 200) {
+    return jsonDecode(res.body);
+  } else {
+    throw Exception('Failed to add member: ${res.body}');
+  }
+}
 }

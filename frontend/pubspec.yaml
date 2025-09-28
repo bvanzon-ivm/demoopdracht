@@ -1,35 +1,43 @@
-name: Anchiano
-description: "Multi tenant productivity app"
-
-publish_to: 'none' 
-
+name: anchiano
+description: Anchiano frontend in Flutter
+publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.9.0
+  sdk: ">=3.4.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
+
+  # ---- State management ----
   flutter_bloc: ^9.0.0
-  equatable: ^2.0.5
-  intl: ^0.20.2
-  collection: ^1.18.0
-  dio: ^5.9.0
-  flutter_secure_storage: ^9.2.4
+
+  # ---- HTTP ----
+  http: ^1.2.2
+
+  # ---- Secure storage ----
+  flutter_secure_storage: ^9.0.0
+
+  # ---- Internationalization ----
   flutter_localizations:
     sdk: flutter
-  web_socket_channel: 3.0.3
-  file_picker: 8.1.2
-  path: ^1.9.0
-  http: ^1.5.0
+  intl: ^0.20.2
+
+  # ---- Utils ----
+  equatable: ^2.0.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.11
 
 flutter:
   uses-material-design: true
+
+  # ARB files voor i18n
   generate: true
+  assets:
+    - l10n/

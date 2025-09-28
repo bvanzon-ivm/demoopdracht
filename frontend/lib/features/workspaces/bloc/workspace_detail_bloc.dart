@@ -1,33 +1,44 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../models/workspace.dart';
+import '../../auth/bloc/auth_bloc.dart';
 import '../repositories/workspace_repository.dart';
+import '../../auth/repositories/user_repository.dart';
+import '../../auth/models/user.dart';
+import '../../auth/services/user_service.dart';
 
 /// Events
-sealed class WorkspaceDetailEvent {}
+abstract class WorkspaceDetailEvent {}
 
-class LoadWorkspaceDetail extends WorkspaceDetailEvent {
+class LoadMembers extends WorkspaceDetailEvent {
   final int workspaceId;
-  LoadWorkspaceDetail(this.workspaceId);
+  LoadMembers(this.workspaceId);
 }
 
-class RemoveUserRequested extends WorkspaceDetailEvent {
+class AddMember extends WorkspaceDetailEvent {
   final int workspaceId;
   final int userId;
-  RemoveUserRequested(this.workspaceId, this.userId);
+  AddMember(this.workspaceId, this.userId);
+}
+
+class SearchUsers extends WorkspaceDetailEvent {
+  final String query;
+  SearchUsers(this.query);
 }
 
 /// States
-sealed class WorkspaceDetailState {}
+abstract class WorkspaceDetailState {}
 
 class WorkspaceDetailInitial extends WorkspaceDetailState {}
 
 class WorkspaceDetailLoading extends WorkspaceDetailState {}
 
-class WorkspaceDetailLoaded extends WorkspaceDetailState {
-  final Workspace workspace;
-  final List<Map<String, dynamic>> auditLogs;
+class MembersLoaded extends WorkspaceDetailState {
+  final List<Map<String, dynamic>> members;
+  MembersLoaded(this.members);
+}
 
-  WorkspaceDetailLoaded(this.workspace, this.auditLogs);
+class UsersFound extends WorkspaceDetailState {
+  final List<User> results;
+  UsersFound(this.results);
 }
 
 class WorkspaceDetailError extends WorkspaceDetailState {
@@ -36,31 +47,66 @@ class WorkspaceDetailError extends WorkspaceDetailState {
 }
 
 /// Bloc
-class WorkspaceDetailBloc extends Bloc<WorkspaceDetailEvent, WorkspaceDetailState> {
-  final WorkspaceRepository repo;
+class WorkspaceDetailBloc
+    extends Bloc<WorkspaceDetailEvent, WorkspaceDetailState> {
+  final WorkspaceRepository _repo;
+  final AuthBloc _authBloc;
 
-  WorkspaceDetailBloc(this.repo) : super(WorkspaceDetailInitial()) {
-    on<LoadWorkspaceDetail>((event, emit) async {
-      emit(WorkspaceDetailLoading());
-      try {
-        final ws = await repo.get(event.workspaceId);
-        final audit = await repo.audit(event.workspaceId);
-        emit(WorkspaceDetailLoaded(ws, audit));
-      } catch (e) {
-        emit(WorkspaceDetailError(e.toString()));
-      }
-    });
+  WorkspaceDetailBloc(this._repo, this._authBloc)
+      : super(WorkspaceDetailInitial()) {
+    on<LoadMembers>(_onLoadMembers);
+    on<AddMember>(_onAddMember);
+    on<SearchUsers>(_onSearchUsers);
+  }
 
-    on<RemoveUserRequested>((event, emit) async {
-      if (state is! WorkspaceDetailLoaded) return;
-      try {
-        await repo.removeUser(event.workspaceId, event.userId);
-        final ws = await repo.get(event.workspaceId);
-        final audit = await repo.audit(event.workspaceId);
-        emit(WorkspaceDetailLoaded(ws, audit));
-      } catch (e) {
-        emit(WorkspaceDetailError(e.toString()));
+  Future<void> _onLoadMembers(
+      LoadMembers event, Emitter<WorkspaceDetailState> emit) async {
+    emit(WorkspaceDetailLoading());
+    try {
+      final authState = _authBloc.state;
+      if (authState is AuthAuthenticated) {
+        final members =
+            await _repo.getMembers(authState.token, event.workspaceId);
+        emit(MembersLoaded(members));
+      } else {
+        emit(WorkspaceDetailError("Not authenticated"));
       }
-    });
+    } catch (e) {
+      emit(WorkspaceDetailError("Members load failed: $e"));
+    }
+  }
+
+  Future<void> _onAddMember(
+      AddMember event, Emitter<WorkspaceDetailState> emit) async {
+    try {
+      final authState = _authBloc.state;
+      if (authState is AuthAuthenticated) {
+        await _repo.addMember(authState.token, event.workspaceId, event.userId);
+        // Refresh members after adding
+        final members =
+            await _repo.getMembers(authState.token, event.workspaceId);
+        emit(MembersLoaded(members));
+      } else {
+        emit(WorkspaceDetailError("Not authenticated"));
+      }
+    } catch (e) {
+      emit(WorkspaceDetailError("Add member failed: $e"));
+    }
+  }
+
+  Future<void> _onSearchUsers(
+      SearchUsers event, Emitter<WorkspaceDetailState> emit) async {
+    try {
+      final authState = _authBloc.state;
+      if (authState is AuthAuthenticated) {
+        final repo = UserRepository(UserService());
+        final users = await repo.searchUsers(authState.token, event.query);
+        emit(UsersFound(users));
+      } else {
+        emit(WorkspaceDetailError("Not authenticated"));
+      }
+    } catch (e) {
+      emit(WorkspaceDetailError("Search failed: $e"));
+    }
   }
 }

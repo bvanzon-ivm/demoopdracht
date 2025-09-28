@@ -1,94 +1,72 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/task.dart';
 import '../../../core/config/api_config.dart';
+import '../models/task.dart';
 
 class TaskService {
-  String get baseUrl => ApiConfig.baseUrl;
-  String? get token => ApiConfig.token;
-
-  TaskService();
-  Map<String, String> get _headers => {
-        "Content-Type": "application/json",
-        if (token != null) "Authorization": "Bearer $token",
-      };
-
-  Future<List<Task>> fetchTasks(int workspaceId) async {
+  Future<List<Task>> getTasks(String token, int workspaceId) async {
     final res = await http.get(
-      Uri.parse('$baseUrl/workspaces/$workspaceId/tasks'),
-      headers: _headers,
+      Uri.parse('${ApiConfig.baseUrl}/workspaces/$workspaceId/tasks'),
+      headers: ApiConfig.authHeaders(token),
     );
-    if (res.statusCode != 200) throw Exception('Failed to load tasks');
-    final list = jsonDecode(res.body) as List<dynamic>;
-    return list.map((e) => Task.fromJson(e)).toList();
-  }
 
-  Future<Task> createTask(int workspaceId, Map<String, dynamic> data) async {
-    final res = await http.post(
-      Uri.parse('$baseUrl/workspaces/$workspaceId/tasks'),
-      headers: _headers,
-      body: jsonEncode(data),
-    );
-    if (res.statusCode != 201 && res.statusCode != 200) {
-      throw Exception('Failed to create task');
+    if (res.statusCode == 200) {
+      final List data = jsonDecode(res.body);
+      return data.map((json) => Task.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load tasks: ${res.body}');
     }
-    return Task.fromJson(jsonDecode(res.body));
   }
 
-  Future<Task> updateTask(
-    int workspaceId,
-    int taskId,
-    Map<String, dynamic> data,
-  ) async {
-    final res = await http.patch(
-      Uri.parse('$baseUrl/workspaces/$workspaceId/tasks/$taskId'),
-      headers: _headers,
-      body: jsonEncode(data),
-    );
-    if (res.statusCode != 200) throw Exception('Failed to update task ${res.body}');
-    return Task.fromJson(jsonDecode(res.body));
-  }
-
-  Future<void> deleteTask(int workspaceId, int taskId) async {
-    final res = await http.delete(
-      Uri.parse('$baseUrl/workspaces/$workspaceId/tasks/$taskId'),
-      headers: _headers,
-    );
-    if (res.statusCode != 204) throw Exception('Failed to delete task');
-  }
-
-  Future<Task> getTask(int workspaceId, int taskId) async {
+  Future<Task> getTask(String token, int workspaceId, int taskId) async {
     final res = await http.get(
-      Uri.parse('$baseUrl/workspaces/$workspaceId/tasks/$taskId'),
-      headers: _headers,
+      Uri.parse('${ApiConfig.baseUrl}/workspaces/$workspaceId/tasks/$taskId'),
+      headers: ApiConfig.authHeaders(token),
     );
-    if (res.statusCode != 200) throw Exception('Failed to get task');
-    return Task.fromJson(jsonDecode(res.body));
+
+    if (res.statusCode == 200) {
+      return Task.fromJson(jsonDecode(res.body));
+    } else {
+      throw Exception('Failed to load task: ${res.body}');
+    }
   }
 
-  Future<List<Map<String, dynamic>>> fetchAudit(
-    int workspaceId,
-    int taskId,
-  ) async {
-    final res = await http.get(
-      Uri.parse('$baseUrl/workspaces/$workspaceId/tasks/$taskId/audit'),
-      headers: _headers,
-    );
-    if (res.statusCode != 200) throw Exception('Failed to fetch audit');
-    return List<Map<String, dynamic>>.from(jsonDecode(res.body));
-  }
-
-  Future<void> rollbackField(
-    int workspaceId,
-    int taskId,
-    String field,
-    int versionId,
-  ) async {
+  Future<Task> createTask(String token, int workspaceId, Map<String, dynamic> body) async {
     final res = await http.post(
-      Uri.parse('$baseUrl/workspaces/$workspaceId/tasks/$taskId/rollback'),
-      headers: _headers,
-      body: jsonEncode({'field': field, 'versionId': versionId}),
+      Uri.parse('${ApiConfig.baseUrl}/workspaces/$workspaceId/tasks'),
+      headers: ApiConfig.authHeaders(token),
+      body: jsonEncode(body),
     );
-    if (res.statusCode != 204) throw Exception('Failed to rollback');
+
+    if (res.statusCode == 200) {
+      return Task.fromJson(jsonDecode(res.body));
+    } else {
+      throw Exception('Failed to create task: ${res.body}');
+    }
+  }
+
+  Future<Task> updateTask(String token, int workspaceId, int taskId, Map<String, dynamic> body) async {
+    final res = await http.put(
+      Uri.parse('${ApiConfig.baseUrl}/workspaces/$workspaceId/tasks/$taskId'),
+      headers: ApiConfig.authHeaders(token),
+      body: jsonEncode(body),
+    );
+
+    if (res.statusCode == 200) {
+      return Task.fromJson(jsonDecode(res.body));
+    } else {
+      throw Exception('Failed to update task: ${res.body}');
+    }
+  }
+
+  Future<void> deleteTask(String token, int workspaceId, int taskId) async {
+    final res = await http.delete(
+      Uri.parse('${ApiConfig.baseUrl}/workspaces/$workspaceId/tasks/$taskId'),
+      headers: ApiConfig.authHeaders(token),
+    );
+
+    if (res.statusCode != 200) {
+      throw Exception('Failed to delete task: ${res.body}');
+    }
   }
 }

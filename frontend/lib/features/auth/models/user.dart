@@ -1,42 +1,26 @@
 class User {
   final int id;
-  final String email;
-  final String? passwordHash;
   final String name;
-  final bool isActive;
-  final String? createdAt;
-  final String? updatedAt;
-  final String? lastLoginAt;
+  final String email;
+  final DateTime createdAt;
+  final DateTime? lastLoginAt;
 
   User({
     required this.id,
-    required this.email,
-    this.passwordHash,
     required this.name,
-    required this.isActive,
-    this.createdAt,
-    this.updatedAt,
+    required this.email,
+    required this.createdAt,
     this.lastLoginAt,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
-    id: json['id'],
-    email: json['email'],
-    passwordHash: json['passwordHash'],
-    name: json['name'],
-    isActive: json['isActive'] ?? true,
-    createdAt: json['createdAt'],
-    updatedAt: json['updatedAt'],
-    lastLoginAt: json['lastLoginAt'],
-  );
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'email': email,
-    'passwordHash': passwordHash,
-    'name': name,
-    'isActive': isActive,
-    'createdAt': createdAt,
-    'updatedAt': updatedAt,
-    'lastLoginAt': lastLoginAt,
-  };
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      email: json['email'] as String,
+      createdAt: DateTime.parse(json['createdAt']),
+      lastLoginAt:
+          json['lastLoginAt'] != null ? DateTime.parse(json['lastLoginAt']) : null,
+    );
+  }
 }

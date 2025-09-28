@@ -1,11 +1,14 @@
 class ApiConfig {
-  static const String baseUrl = "http://localhost:8080/api"; 
-  static String? token; 
+  static const String baseUrl = 'http://localhost:8080/api';
 
-  static Map<String, String> get headers {
-    return {
-      "Content-Type": "application/json",
-      if (token != null) "Authorization": "Bearer $token",
-    };
-  }
+  // headers zonder auth
+  static Map<String, String> get baseHeaders => {
+        'Content-Type': 'application/json',
+      };
+
+  // headers mét auth (JWT)
+  static Map<String, String> authHeaders(String token) => {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
 }

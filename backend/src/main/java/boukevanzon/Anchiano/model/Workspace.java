@@ -6,37 +6,43 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "workspaces")
-@Data
+@Getter @Setter
 @NoArgsConstructor
-@Getter
-@Setter
 @AllArgsConstructor
 @Builder
-
 public class Workspace {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false, length = 120)
     private String name;
 
-    @Column(length = 1000)      
+    @Column(length = 500)
     private String description;
-
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @Builder.Default
     @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
-    @Builder.Default
     @Column(nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
-    @Column(nullable = true)
+    @Column
     private LocalDateTime deletedAt;
-}
 
+    @PrePersist
+    public void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = createdAt;
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+}

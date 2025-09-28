@@ -1,9 +1,12 @@
 package boukevanzon.Anchiano.controller;
 
 import boukevanzon.Anchiano.dto.JwtDto;
+import boukevanzon.Anchiano.dto.UserDto;
 import boukevanzon.Anchiano.dto.LoginDto;
 import boukevanzon.Anchiano.dto.RegisterDto;
 import boukevanzon.Anchiano.service.AuthService;
+import boukevanzon.Anchiano.model.User;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,5 +29,9 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<JwtDto> register(@Valid @RequestBody RegisterDto dto) {
         return ResponseEntity.ok(authService.register(dto));
+    }
+        @GetMapping("/me")
+    public ResponseEntity<UserDto> me(@AuthenticationPrincipal(expression = "user") User user) {
+        return ResponseEntity.ok(UserDto.fromEntity(user));
     }
 }

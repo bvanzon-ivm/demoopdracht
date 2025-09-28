@@ -12,4 +12,5 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     List<Membership> findByWorkspace(Workspace workspace);
     Optional<Membership> findByWorkspaceAndUser(Workspace workspace, User user);
     boolean existsByWorkspaceAndUser(Workspace workspace, User user);
+    List<Membership> findByUser(User user);
 }

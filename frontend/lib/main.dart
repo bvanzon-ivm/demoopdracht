@@ -1,100 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 
-import 'core/config/api_config.dart';
+// Auth
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/repositories/auth_repository.dart';
 import 'features/auth/services/auth_service.dart';
-import 'features/workspaces/repositories/workspace_repository.dart';
-import 'features/workspaces/services/workspace_service.dart';
-import 'features/workspaces/bloc/workspace_list_bloc.dart';
-import 'features/tasks/repositories/task_repository.dart';
-import 'features/tasks/services/task_service.dart';
-import 'features/attachments/repositories/attachment_repository.dart';
-import 'features/attachments/services/attachment_service.dart';
 
-import 'generated/app_localizations.dart';
+// Screens
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
-
+import 'features/workspaces/ui/workspace_list_screen.dart';
 
 void main() {
-  ApiConfig.token = null;
-
-  // services
-  final authService = AuthService();
-  final workspaceService = WorkspaceService();
-  final taskService = TaskService();
-  final attachmentService = AttachmentService();
-
-
-  // repositories
-  final authRepository = AuthRepository(authService);
-  final workspaceRepository = WorkspaceRepository(workspaceService);
-  final taskRepository = TaskRepository(taskService);
-  final attachmentRepository = AttachmentRepository(attachmentService);
-
-  runApp(MyApp(
-    authRepository: authRepository,
-    workspaceRepository: workspaceRepository,
-    taskRepository: taskRepository,
-    attachmentRepository: attachmentRepository,
-  ));
+  runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  final AuthRepository authRepository;
-  final WorkspaceRepository workspaceRepository;
-  final TaskRepository taskRepository;
-  final AttachmentRepository attachmentRepository;
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
 
-  const MyApp({
-    super.key,
-    required this.authRepository,
-    required this.workspaceRepository,
-    required this.taskRepository,
-    required this.attachmentRepository,
-  });
+  static void setLocale(BuildContext context, Locale newLocale) {
+    final _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
+    state?.setLocale(newLocale);
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale _locale = const Locale('en');
+
+  void setLocale(Locale newLocale) {
+    setState(() {
+      _locale = newLocale;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider.value(value: authRepository),
-        RepositoryProvider.value(value: workspaceRepository),
-        RepositoryProvider.value(value: taskRepository),
-        RepositoryProvider.value(value: attachmentRepository),
-      ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) => AuthBloc(authRepository),
-          ),
-              BlocProvider(
-      create: (context) => WorkspaceListBloc(workspaceRepository),
-      
-    ),
-    
-    
-    // Als je detail schermen ook een global bloc willen:
-    // BlocProvider(
-    //   create: (context) => WorkspaceDetailBloc(workspaceRepository),
-    // ),
-        ],
-        child: MaterialApp(
-          title: 'Anchiano',
-          theme: ThemeData(primarySwatch: Colors.blue),
-          supportedLocales: const [
-            Locale('en'),
-            Locale('nl'),
-          ],
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          home: const HomeScreen(),
+    return RepositoryProvider(
+      create: (_) => AuthRepository(AuthService()),
+      child: BlocProvider(
+        create: (context) => AuthBloc(context.read<AuthRepository>())
+          ..add(CheckAuthStatus()), // check auth bij start
+        child: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            return MaterialApp(
+              title: 'Anchiano',
+              theme: ThemeData(
+                primarySwatch: Colors.blue,
+              ),
+              debugShowCheckedModeBanner: false,
+              locale: _locale,
+              supportedLocales: const [
+                Locale('en'),
+                Locale('nl'),
+              ],
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              initialRoute: state is AuthAuthenticated ? '/home' : '/login',
+              routes: {
+                '/login': (context) => const LoginScreen(),
+                '/register': (context) => const RegisterScreen(),
+                '/home': (context) => const HomeScreen(),
+                '/workspaces': (context) => const WorkspaceListScreen(),
+              },
+            );
+          },
         ),
       ),
     );

@@ -9,7 +9,10 @@ import boukevanzon.Anchiano.repository.WorkspaceRepository;
 import boukevanzon.Anchiano.service.TaskService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import boukevanzon.Anchiano.model.User;
+import boukevanzon.Anchiano.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,11 +21,13 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepo;
     private final WorkspaceRepository wsRepo;
     private final TaskMapper taskMapper;
+    private final UserRepository userRepo;
 
-    public TaskServiceImpl(TaskRepository taskRepo, WorkspaceRepository wsRepo, TaskMapper taskMapper) {
+    public TaskServiceImpl(TaskRepository taskRepo, WorkspaceRepository wsRepo, TaskMapper taskMapper, UserRepository userRepo) {
         this.taskRepo = taskRepo;
         this.wsRepo = wsRepo;
         this.taskMapper = taskMapper;
+        this.userRepo = userRepo;
     }
 
     @Override
@@ -40,8 +45,14 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto createTask(Authentication auth, Long workspaceId, TaskDto dto) {
         Workspace ws = wsRepo.findById(workspaceId).orElseThrow();
+        User user = userRepo.findByEmailIgnoreCase(auth.getName()).orElseThrow();
+
         Task task = taskMapper.toEntity(dto);
         task.setWorkspace(ws);
+        task.setCreatedBy(user);
+        task.setCreatedAt(LocalDateTime.now());
+        task.setUpdatedAt(LocalDateTime.now());
+
         taskRepo.save(task);
         return taskMapper.toDto(task);
     }

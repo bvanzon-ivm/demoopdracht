@@ -8,21 +8,5 @@ import 'app_localizations.dart';
 class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
-  @override
-  String get appTitle => 'Anchiano';
 
-  @override
-  String get tasksTitle => 'Tasks';
-
-  @override
-  String get priority => 'Priority';
-
-  @override
-  String get status => 'Status';
-
-  @override
-  String get description => 'Description';
-
-  @override
-  String get due => 'Due';
 }
